@@ -1,40 +1,869 @@
 <!DOCTYPE html>
-<html lang="pl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moja Aplikacja</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      text-align: center;
-      padding: 2rem;
-    }
-    header {
-      background: #4a90e2;
-      color: white;
-      padding: 2rem;
-      border-radius: 1rem;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      border: none;
-      background: #4a90e2;
-      color: white;
-      border-radius: 0.5rem;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Witaj w mojej aplikacji!</h1>
-    <p>To wersja testowa strony, którą zamienimy na aplikację 📱</p>
-  </header>
-  <button onclick="alert('Działa! 🎉')">Kliknij mnie</button>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Journal</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #fefafc, #fdf2f8, #fce4ec);
+        min-height: 100vh;
+        color: #880e4f;
+      }
+
+      .container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(
+          135deg,
+          rgba(254, 250, 252, 0.9),
+          rgba(253, 242, 248, 0.9)
+        );
+        border-bottom: 1px solid rgba(248, 187, 217, 0.5);
+        backdrop-filter: blur(8px);
+        padding: 12px 16px;
+      }
+
+      .header-content {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .menu-btn {
+        background: transparent;
+        border: none;
+        color: #880e4f;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+      }
+
+      .menu-btn:hover {
+        background: rgba(248, 187, 217, 0.3);
+      }
+
+      /* Dropdown Menu */
+      .menu-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: rgba(255, 254, 255, 0.98);
+        border: 1px solid rgba(248, 187, 217, 0.5);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(233, 30, 99, 0.15);
+        backdrop-filter: blur(10px);
+        min-width: 180px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        margin-top: 8px;
+      }
+
+      .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #880e4f;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 8px;
+        margin: 4px;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(233, 30, 99, 0.1);
+        color: #e91e63;
+      }
+
+      .dropdown-item:first-child {
+        margin-top: 8px;
+      }
+
+      .dropdown-item:last-child {
+        margin-bottom: 8px;
+      }
+
+      .dropdown-icon {
+        width: 16px;
+        height: 16px;
+        color: #e91e63;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #880e4f;
+        font-family: "Crimson Text", serif;
+        letter-spacing: 0.3px;
+      }
+
+      .date-nav {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .nav-btn {
+        background: transparent;
+        border: none;
+        color: #e91e63;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+      }
+
+      .nav-btn:hover {
+        background: rgba(248, 187, 217, 0.3);
+      }
+
+      .save-btn {
+        background: linear-gradient(135deg, #e91e63, #ad1457);
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
+      }
+
+      .save-btn:hover {
+        background: linear-gradient(135deg, #ad1457, #880e4f);
+        box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4);
+        transform: translateY(-1px);
+      }
+
+      .date-text {
+        font-size: 13px;
+        font-weight: 400;
+        color: #e91e63;
+        padding: 0 8px;
+        white-space: nowrap;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 16px 24px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .card {
+        background: rgba(255, 254, 255, 0.95);
+        border: 1px solid rgba(248, 187, 217, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(233, 30, 99, 0.1);
+        padding: 24px;
+      }
+
+      .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #880e4f;
+        font-family: "Crimson Text", serif;
+        margin-bottom: 12px;
+      }
+
+      /* Day/Night Toggle */
+      .day-night-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .toggle-btn {
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .toggle-btn.active.day {
+        background: linear-gradient(135deg, #e91e63, #ad1457);
+        color: white;
+        box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
+      }
+
+      .toggle-btn.active.night {
+        background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+        color: white;
+        box-shadow: 0 2px 8px rgba(142, 36, 170, 0.3);
+      }
+
+      .toggle-btn:not(.active) {
+        background: #fdf2f8;
+        color: #880e4f;
+        border: 1px solid #f8bbd9;
+      }
+
+      /* Energy Level */
+      .energy-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .energy-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 2px solid #f8bbd9;
+        background: #fdf2f8;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .energy-btn.active {
+        border-color: #e91e63;
+        box-shadow: 0 2px 8px rgba(233, 30, 99, 0.2);
+      }
+
+      .energy-level-1.active {
+        background: #f8bbd9;
+      }
+      .energy-level-2.active {
+        background: #f48fb1;
+      }
+      .energy-level-3.active {
+        background: #ec407a;
+      }
+      .energy-level-4.active {
+        background: #e91e63;
+      }
+      .energy-level-5.active {
+        background: #ad1457;
+      }
+
+      .energy-text {
+        font-size: 12px;
+        font-weight: 500;
+        color: #e91e63;
+      }
+
+      /* Mood Selector */
+      .mood-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .mood-btn {
+        padding: 12px;
+        border-radius: 12px;
+        border: 2px solid #f8bbd9;
+        background: transparent;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+      }
+
+      .mood-btn:hover {
+        background: #fcf2f8;
+      }
+
+      .mood-btn.active:not(.neutral) {
+        border-color: #e91e63;
+        background: #fce4ec;
+        box-shadow: 0 2px 8px rgba(233, 30, 99, 0.2);
+      }
+
+      .mood-emoji {
+        font-size: 28px;
+        margin-bottom: 6px;
+      }
+
+      .mood-label {
+        font-size: 10px;
+        font-weight: 500;
+        color: #e91e63;
+      }
+
+      /* Text Fields */
+      .text-field {
+        width: 100%;
+        min-height: 80px;
+        padding: 12px;
+        border: 1.5px solid #f8bbd9;
+        border-radius: 12px;
+        background: rgba(252, 228, 236, 0.8);
+        font-size: 12px;
+        color: #880e4f;
+        resize: vertical;
+        font-family: inherit;
+        margin-bottom: 18px;
+      }
+
+      .text-field:focus {
+        outline: none;
+        border-color: #e91e63;
+        box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+      }
+
+      .text-field::placeholder {
+        color: #e91e63;
+        opacity: 0.7;
+      }
+
+      /* Right Panel */
+      .right-panel {
+        background: linear-gradient(135deg, #fefafc, #fdf2f8);
+      }
+
+      .quote-section {
+        padding: 16px;
+        background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+        border-radius: 12px;
+        border: 1px solid rgba(244, 143, 177, 0.4);
+        margin-bottom: 18px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .quote-text {
+        font-size: 12px;
+        font-style: italic;
+        color: #880e4f;
+        line-height: 1.5;
+        font-family: "Crimson Text", serif;
+        margin-bottom: 8px;
+      }
+
+      .quote-author {
+        text-align: right;
+        font-size: 14px;
+        font-weight: 500;
+        color: #e91e63;
+      }
+
+      .notes-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .notes-field {
+        flex: 1;
+        min-height: 300px;
+        padding: 12px;
+        border: 1px solid rgba(248, 187, 217, 0.6);
+        border-radius: 12px;
+        background: rgba(255, 254, 255, 1);
+        font-size: 12px;
+        color: #880e4f;
+        resize: none;
+        font-family: inherit;
+      }
+
+      .notes-field:focus {
+        outline: none;
+        border-color: #e91e63;
+        box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 16px;
+          padding: 16px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 8px 12px;
+        }
+
+        .title {
+          font-size: 16px;
+        }
+
+        .date-text {
+          font-size: 12px;
+        }
+
+        .card {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-section">
+            <div class="menu-container">
+              <button class="menu-btn" onclick="toggleMenu()">☰</button>
+              <div class="dropdown-menu" id="dropdownMenu">
+                <button class="dropdown-item" onclick="jumpToToday()">
+                  <span class="dropdown-icon">📅</span>
+                  Today
+                </button>
+                <button class="dropdown-item" onclick="resetDay()">
+                  <span class="dropdown-icon">🔄</span>
+                  Reset Day
+                </button>
+                <button class="dropdown-item" onclick="logOut()">
+                  <span class="dropdown-icon">🚪</span>
+                  Log Out
+                </button>
+              </div>
+            </div>
+            <h1 class="title">Daily Journal</h1>
+          </div>
+
+          <div class="date-nav">
+            <button class="nav-btn" onclick="changeDate(-1)">‹</button>
+            <span class="date-text" id="currentDate">Wed, Jun 25, 2025</span>
+            <button class="nav-btn" onclick="changeDate(1)">›</button>
+            <button class="save-btn" onclick="saveEntry()">💾 Zapisz</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Left Panel -->
+        <div class="card">
+          <!-- Day/Night Toggle -->
+          <div class="section-title">Day or night?</div>
+          <div class="day-night-toggle">
+            <button
+              class="toggle-btn active day"
+              onclick="toggleDayNight('day')"
+            >
+              ☀ Day
+            </button>
+            <button class="toggle-btn night" onclick="toggleDayNight('night')">
+              🌙 Night
+            </button>
+          </div>
+
+          <!-- Energy Level -->
+          <div class="section-title">Energy level</div>
+          <div class="energy-selector">
+            <button
+              class="energy-btn energy-level-1"
+              onclick="setEnergy(1)"
+            ></button>
+            <button
+              class="energy-btn energy-level-2"
+              onclick="setEnergy(2)"
+            ></button>
+            <button
+              class="energy-btn energy-level-3"
+              onclick="setEnergy(3)"
+            ></button>
+            <button
+              class="energy-btn energy-level-4"
+              onclick="setEnergy(4)"
+            ></button>
+            <button
+              class="energy-btn energy-level-5"
+              onclick="setEnergy(5)"
+            ></button>
+          </div>
+          <div class="energy-text" id="energyText">Energy: Not set</div>
+
+          <!-- Mood Selector -->
+          <div class="section-title">How am I feeling?</div>
+          <div class="mood-selector">
+            <button class="mood-btn" onclick="setMood('sad')">
+              <div class="mood-emoji">😞</div>
+              <div class="mood-label">Sad</div>
+            </button>
+            <button
+              class="mood-btn neutral active"
+              onclick="setMood('neutral')"
+            >
+              <div class="mood-emoji">😐</div>
+              <div class="mood-label">Neutral</div>
+            </button>
+            <button class="mood-btn" onclick="setMood('happy')">
+              <div class="mood-emoji">🙂</div>
+              <div class="mood-label">Happy</div>
+            </button>
+            <button class="mood-btn" onclick="setMood('excited')">
+              <div class="mood-emoji">😄</div>
+              <div class="mood-label">Excited</div>
+            </button>
+          </div>
+
+          <!-- Grateful -->
+          <div class="section-title">I am grateful for...</div>
+          <textarea
+            class="text-field"
+            placeholder="Write what you're grateful for today..."
+          ></textarea>
+
+          <!-- Goals -->
+          <div class="section-title">
+            3 intentional goals / 3 highlights of my day
+          </div>
+          <textarea
+            class="text-field"
+            placeholder="List your goals for today or highlights from your day..."
+          ></textarea>
+
+          <!-- Affirmations -->
+          <div class="section-title">Daily affirmations. I am...</div>
+          <textarea
+            class="text-field"
+            style="min-height: 60px"
+            placeholder="Write positive affirmations about yourself..."
+          ></textarea>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="card right-panel">
+          <!-- Quote Section -->
+          <div class="quote-section">
+            <div class="quote-text">
+              "Being confident and believing in your own self-worth is necessary
+              to achieving your potential."
+            </div>
+            <div class="quote-author">— Sheryl Sandberg</div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="section-title">Notes & Reflections</div>
+          <div class="notes-section">
+            <textarea
+              class="notes-field"
+              placeholder="Write your thoughts, reflections, or anything else on your mind..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCCBmDkiwHcZpamzMSuDu-2n3gQvoixVDc",
+        authDomain: "jour-34256.firebaseapp.com",
+        projectId: "jour-34256",
+        storageBucket: "jour-34256.firebasestorage.app",
+        messagingSenderId: "365012324589",
+        appId: "1:365012324589:web:069069aefc74a23075bce4",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      let currentDate = new Date();
+      let currentEnergy = 0;
+      let currentMood = "neutral";
+      let isDayMode = true;
+
+      function updateDateDisplay() {
+        const options = {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        };
+        document.getElementById("currentDate").textContent =
+          currentDate.toLocaleDateString("en-US", options);
+      }
+
+      function changeDate(direction) {
+        currentDate.setDate(currentDate.getDate() + direction);
+        updateDateDisplay();
+        loadEntryForDate();
+      }
+
+      function toggleDayNight(mode) {
+        isDayMode = mode === "day";
+        document
+          .querySelector(".toggle-btn.day")
+          .classList.toggle("active", isDayMode);
+        document
+          .querySelector(".toggle-btn.night")
+          .classList.toggle("active", !isDayMode);
+      }
+      window.toggleDayNight = toggleDayNight;
+
+      function setEnergy(level) {
+        currentEnergy = level;
+        document
+          .querySelectorAll(".energy-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        for (let i = 1; i <= level; i++) {
+          document.querySelector(`.energy-level-${i}`).classList.add("active");
+        }
+        document.getElementById("energyText").textContent =
+          level === 0 ? "Energy: Not set" : `Energy: ${level}/5`;
+      }
+      window.setEnergy = setEnergy;
+
+      function setMood(mood) {
+        currentMood = mood;
+        document
+          .querySelectorAll(".mood-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        const allBtns = document.querySelectorAll(".mood-btn");
+        allBtns.forEach((btn) => {
+          if (btn.innerText.toLowerCase().includes(mood)) {
+            btn.classList.add("active");
+          }
+        });
+      }
+      window.setMood = setMood;
+
+      function resetDay() {
+        currentEnergy = 0;
+        currentMood = "neutral";
+        isDayMode = true;
+
+        document
+          .querySelectorAll(".energy-btn, .mood-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document.querySelectorAll("textarea").forEach((ta) => (ta.value = ""));
+        toggleDayNight("day");
+        setMood("neutral");
+        document.getElementById("energyText").textContent = "Energy: Not set";
+      }
+      window.resetDay = resetDay;
+
+      function logOut() {
+        if (confirm("Czy na pewno chcesz się wylogować?")) {
+          localStorage.removeItem("loggedUser");
+          showNotification("Wylogowano pomyślnie! 👋", "success");
+          setTimeout(() => (window.location.href = "login.html"), 1000);
+        }
+      }
+      window.logOut = logOut;
+
+      function showNotification(message, type) {
+        const notification = document.createElement("div");
+        notification.textContent = message;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: ${
+            type === "success"
+              ? "linear-gradient(135deg, #e91e63, #ad1457)"
+              : "#f44336"
+          };
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          z-index: 1000;
+          font-size: 14px;
+          font-weight: 500;
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.style.transform = "translateX(0)";
+          setTimeout(() => {
+            notification.style.transform = "translateX(100%)";
+            setTimeout(() => document.body.removeChild(notification), 300);
+          }, 3000);
+        }, 100);
+      }
+
+      function checkAuth() {
+        const loggedUser = localStorage.getItem("loggedUser");
+        if (!loggedUser) {
+          window.location.href = "login.html";
+          return false;
+        }
+        return true;
+      }
+
+      window.saveEntry = async function () {
+        const email = localStorage.getItem("loggedUser");
+        const date = currentDate.toISOString().split("T")[0];
+
+        const data = {
+          date,
+          isDay: isDayMode,
+          energy: currentEnergy,
+          mood: currentMood,
+          grateful: document.querySelector('textarea[placeholder*="grateful"]')
+            .value,
+          goals: document.querySelector('textarea[placeholder*="goals"]').value,
+          affirmations: document.querySelector(
+            'textarea[placeholder*="affirmations"]'
+          ).value,
+          notes: document.querySelector(".notes-field").value,
+        };
+
+        try {
+          await setDoc(doc(db, "journals", `${email}_${date}`), data);
+          showNotification("Zapisano w Firebase! 📀", "success");
+        } catch (e) {
+          console.error(e);
+          showNotification("Błąd zapisu! ❌", "error");
+        }
+      };
+
+      window.loadEntryForDate = async function () {
+        const email = localStorage.getItem("loggedUser");
+        const date = currentDate.toISOString().split("T")[0];
+
+        try {
+          const ref = doc(db, "journals", `${email}_${date}`);
+          const snapshot = await getDoc(ref);
+          if (snapshot.exists()) {
+            const entry = snapshot.data();
+            currentEnergy = entry.energy || 0;
+            currentMood = entry.mood || "neutral";
+            isDayMode = entry.isDay;
+
+            updateEnergyUI();
+            updateMoodUI();
+            updateDayNightUI();
+
+            document.querySelector('textarea[placeholder*="grateful"]').value =
+              entry.grateful || "";
+            document.querySelector('textarea[placeholder*="goals"]').value =
+              entry.goals || "";
+            document.querySelector(
+              'textarea[placeholder*="affirmations"]'
+            ).value = entry.affirmations || "";
+            document.querySelector(".notes-field").value = entry.notes || "";
+          }
+        } catch (e) {
+          console.error("Błąd ładowania:", e);
+        }
+      };
+
+      function updateEnergyUI() {
+        document
+          .querySelectorAll(".energy-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        for (let i = 1; i <= currentEnergy; i++) {
+          document.querySelector(`.energy-level-${i}`).classList.add("active");
+        }
+        document.getElementById("energyText").textContent =
+          currentEnergy === 0
+            ? "Energy: Not set"
+            : `Energy: ${currentEnergy}/5`;
+      }
+
+      function updateMoodUI() {
+        document
+          .querySelectorAll(".mood-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        if (currentMood !== "neutral") {
+          setMood(currentMood);
+        }
+      }
+
+      function updateDayNightUI() {
+        document
+          .querySelector(".toggle-btn.day")
+          .classList.toggle("active", isDayMode);
+        document
+          .querySelector(".toggle-btn.night")
+          .classList.toggle("active", !isDayMode);
+      }
+
+      if (checkAuth()) {
+        updateDateDisplay();
+        loadEntryForDate();
+        setMood("neutral");
+      }
+
+      window.toggleMenu = () => {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+      };
+
+      window.jumpToToday = () => {
+        currentDate = new Date();
+        updateDateDisplay();
+        loadEntryForDate();
+      };
+
+      window.closeMenu = () => {
+        document.getElementById("dropdownMenu").classList.remove("show");
+      };
+
+      document.addEventListener("click", function (event) {
+        const menuContainer = document.querySelector(".menu-container");
+        if (!menuContainer.contains(event.target)) {
+          document.getElementById("dropdownMenu").classList.remove("show");
+        }
+      });
+
+      window.changeDate = changeDate;
+    </script>
+  </body>
 </html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Journal - Login</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #fefafc, #fdf2f8, #fce4ec);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #880e4f;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+      }
+
+      .card {
+        background: rgba(255, 254, 255, 0.95);
+        border: 1px solid rgba(248, 187, 217, 0.3);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(233, 30, 99, 0.15);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+
+      .logo-section {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #e91e63, #ad1457);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        box-shadow: 0 8px 24px rgba(233, 30, 99, 0.3);
+      }
+
+      .logo-icon {
+        font-size: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #880e4f;
+        font-family: "Crimson Text", serif;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #e91e63;
+        font-weight: 500;
+        margin-bottom: 32px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #e91e63;
+        margin-bottom: 8px;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1.5px solid #f8bbd9;
+        border-radius: 16px;
+        background: rgba(252, 228, 236, 0.8);
+        font-size: 16px;
+        color: #880e4f;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-family: inherit;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #e91e63;
+        box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+        background: rgba(255, 254, 255, 0.9);
+      }
+
+      .form-input::placeholder {
+        color: #e91e63;
+        opacity: 0.7;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #e91e63, #ad1457);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 8px 24px rgba(233, 30, 99, 0.3);
+        margin-bottom: 24px;
+      }
+
+      .submit-btn:hover {
+        background: linear-gradient(135deg, #ad1457, #880e4f);
+        box-shadow: 0 12px 32px rgba(233, 30, 99, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 24px 0;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background: #f8bbd9;
+      }
+
+      .divider-text {
+        margin: 0 16px;
+        color: #e91e63;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .toggle-btn {
+        background: transparent;
+        border: none;
+        color: #e91e63;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 12px 24px;
+        border-radius: 12px;
+        transition: all 0.2s;
+        letter-spacing: 0.3px;
+      }
+
+      .toggle-btn:hover {
+        background: rgba(233, 30, 99, 0.1);
+      }
+
+      .error-message {
+        background: rgba(244, 67, 54, 0.1);
+        border: 1px solid #ef5350;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-text {
+        color: #d32f2f;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .success-message {
+        background: rgba(76, 175, 80, 0.1);
+        border: 1px solid #4caf50;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .success-text {
+        color: #2e7d32;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 16px;
+        }
+
+        .card {
+          padding: 24px;
+        }
+
+        .title {
+          font-size: 24px;
+        }
+
+        .submit-btn {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="logo-section">
+          <div class="logo">
+            <div class="logo-icon">📔</div>
+          </div>
+          <h1 class="title">Daily Journal</h1>
+          <p class="subtitle" id="subtitle">Zaloguj się do swojego dziennika</p>
+        </div>
+
+        <form id="authForm">
+          <div class="error-message" id="errorMessage">
+            <div class="error-text">
+              <span>⚠️</span>
+              <span id="errorText">Błąd logowania</span>
+            </div>
+          </div>
+
+          <div class="success-message" id="successMessage">
+            <div class="success-text">
+              <span>✅</span>
+              <span id="successText">Sukces!</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              placeholder="Wpisz swój e-mail"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Hasło</label>
+            <input
+              type="password"
+              id="password"
+              class="form-input"
+              placeholder="Wpisz swoje hasło"
+              required
+            />
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            Zaloguj się
+          </button>
+
+          <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">lub</div>
+            <div class="divider-line"></div>
+          </div>
+
+          <button
+            type="button"
+            class="toggle-btn"
+            onclick="toggleMode()"
+            id="toggleBtn"
+          >
+            Nie masz konta? Zarejestruj się
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCCBmDkiwHcZpamzMSuDu-2n3gQvoixVDc",
+        authDomain: "jour-34256.firebaseapp.com",
+        projectId: "jour-34256",
+        storageBucket: "jour-34256.firebasestorage.app",
+        messagingSenderId: "365012324589",
+        appId: "1:365012324589:web:069069aefc74a23075bce4",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      let isLoginMode = true;
+
+      const subtitle = document.getElementById("subtitle");
+      const submitBtn = document.getElementById("submitBtn");
+      const toggleBtn = document.getElementById("toggleBtn");
+      const errorBox = document.getElementById("errorMessage");
+      const successBox = document.getElementById("successMessage");
+
+      toggleBtn.addEventListener("click", () => {
+        isLoginMode = !isLoginMode;
+        subtitle.textContent = isLoginMode
+          ? "Zaloguj się do swojego dziennika"
+          : "Stwórz swoje konto";
+        submitBtn.textContent = isLoginMode ? "Zaloguj się" : "Zarejestruj się";
+        toggleBtn.textContent = isLoginMode
+          ? "Nie masz konta? Zarejestruj się"
+          : "Masz już konto? Zaloguj się";
+        errorBox.style.display = "none";
+        successBox.style.display = "none";
+        document.getElementById("authForm").reset();
+      });
+
+      document
+        .getElementById("authForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          errorBox.style.display = "none";
+          successBox.style.display = "none";
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value.trim();
+
+          if (!email || !password) {
+            errorBox.textContent = "Wpisz e-mail i hasło";
+            errorBox.style.display = "block";
+            return;
+          }
+
+          try {
+            if (isLoginMode) {
+              await signInWithEmailAndPassword(auth, email, password);
+              localStorage.setItem("loggedUser", email);
+              localStorage.setItem("savedEmail", email);
+              localStorage.setItem("savedPassword", password);
+              successBox.textContent = "Zalogowano pomyślnie!";
+              successBox.style.display = "block";
+            } else {
+              await createUserWithEmailAndPassword(auth, email, password);
+              localStorage.setItem("loggedUser", email);
+              localStorage.setItem("savedEmail", email);
+              localStorage.setItem("savedPassword", password);
+              successBox.textContent = "Konto utworzone pomyślnie!";
+              successBox.style.display = "block";
+            }
+
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 1000);
+          } catch (error) {
+            if (error.code === "auth/user-not-found") {
+              errorBox.textContent =
+                "Konto nie istnieje. Zarejestruj się najpierw.";
+            } else if (error.code === "auth/wrong-password") {
+              errorBox.textContent = "Błędne hasło.";
+            } else if (error.code === "auth/email-already-in-use") {
+              errorBox.textContent = "Użytkownik już istnieje.";
+            } else {
+              errorBox.textContent = "Błąd logowania lub rejestracji.";
+            }
+            errorBox.style.display = "block";
+          }
+        });
+
+      window.addEventListener("load", function () {
+        const loggedUser = localStorage.getItem("loggedUser");
+        if (loggedUser) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Wczytaj zapisane dane
+        const savedEmail = localStorage.getItem("savedEmail");
+        const savedPassword = localStorage.getItem("savedPassword");
+        if (savedEmail) document.getElementById("email").value = savedEmail;
+        if (savedPassword)
+          document.getElementById("password").value = savedPassword;
+      });
+    </script>
+  </body>
+</html>

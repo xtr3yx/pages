@@ -141,7 +141,7 @@
 
       .date-nav {
         position: absolute;
-        left: 50%;
+        left: 65%;
         transform: translateX(-50%);
         display: flex;
         align-items: center;
@@ -382,7 +382,7 @@
       }
 
       .quote-text {
-        font-size: 12px;
+        font-size: 14px;
         font-style: italic;
         color: #880e4f;
         line-height: 1.5;
@@ -583,11 +583,8 @@
         <div class="card right-panel">
           <!-- Quote Section -->
           <div class="quote-section">
-            <div class="quote-text">
-              "Being confident and believing in your own self-worth is necessary
-              to achieving your potential."
-            </div>
-            <div class="quote-author">— Sheryl Sandberg</div>
+            <div id="quoteText" class="quote-text"></div>
+            <div id="quoteAuthor" class="quote-author"></div>
           </div>
 
           <!-- Notes Section -->
@@ -610,6 +607,12 @@
         setDoc,
         getDoc,
       } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+      import { quotes } from "./quotes.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCCBmDkiwHcZpamzMSuDu-2n3gQvoixVDc",
@@ -622,11 +625,24 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
+      const auth = getAuth(app);
 
+      let currentUser = null;
       let currentDate = new Date();
       let currentEnergy = 0;
       let currentMood = "neutral";
       let isDayMode = true;
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          updateDateDisplay();
+          loadEntryForDate();
+          setMood("neutral");
+        } else {
+          window.location.href = "login.html";
+        }
+      });
 
       function updateDateDisplay() {
         const options = {
@@ -637,13 +653,37 @@
         };
         document.getElementById("currentDate").textContent =
           currentDate.toLocaleDateString("en-US", options);
+
+        // 🔁 Dodaj to:
+        showQuoteOfTheDay();
       }
+
+      function showQuoteOfTheDay() {
+        const today = currentDate.toISOString().split("T")[0];
+        let hash = 0;
+        for (let i = 0; i < today.length; i++) {
+          hash += today.charCodeAt(i);
+        }
+        const index = hash % quotes.length;
+        const quote = quotes[index];
+
+        console.log("Cytat dnia:", quote); // ← dodaj to
+
+        document.querySelector(".quote-text").textContent = `"${quote.text}"`;
+        document.querySelector(
+          ".quote-author"
+        ).textContent = `— ${quote.author}`;
+      }
+
+      // Wywołanie
+      showQuoteOfTheDay();
 
       function changeDate(direction) {
         currentDate.setDate(currentDate.getDate() + direction);
         updateDateDisplay();
         loadEntryForDate();
       }
+      window.changeDate = changeDate;
 
       function toggleDayNight(mode) {
         isDayMode = mode === "day";
@@ -674,12 +714,11 @@
         document
           .querySelectorAll(".mood-btn")
           .forEach((btn) => btn.classList.remove("active"));
-        const allBtns = document.querySelectorAll(".mood-btn");
-        allBtns.forEach((btn) => {
-          if (btn.innerText.toLowerCase().includes(mood)) {
-            btn.classList.add("active");
-          }
-        });
+        const btns = Array.from(document.querySelectorAll(".mood-btn"));
+        const btn = btns.find((btn) =>
+          btn.innerText.toLowerCase().includes(mood)
+        );
+        if (btn) btn.classList.add("active");
       }
       window.setMood = setMood;
 
@@ -699,12 +738,13 @@
       window.resetDay = resetDay;
 
       function logOut() {
-        if (confirm("Czy na pewno chcesz się wylogować?")) {
+        signOut(auth).then(() => {
           localStorage.removeItem("loggedUser");
-          showNotification("Wylogowano pomyślnie! 👋", "success");
-          setTimeout(() => (window.location.href = "login.html"), 1000);
-        }
+          showNotification("Do zobaczenia jutro! 🌅", "success");
+          setTimeout(() => (window.location.href = "login.html"), 10000);
+        });
       }
+
       window.logOut = logOut;
 
       function showNotification(message, type) {
@@ -738,19 +778,10 @@
         }, 100);
       }
 
-      function checkAuth() {
-        const loggedUser = localStorage.getItem("loggedUser");
-        if (!loggedUser) {
-          window.location.href = "login.html";
-          return false;
-        }
-        return true;
-      }
-
       window.saveEntry = async function () {
-        const email = localStorage.getItem("loggedUser");
-        const date = currentDate.toISOString().split("T")[0];
+        if (!currentUser) return;
 
+        const date = currentDate.toISOString().split("T")[0];
         const data = {
           date,
           isDay: isDayMode,
@@ -766,7 +797,10 @@
         };
 
         try {
-          await setDoc(doc(db, "journals", `${email}_${date}`), data);
+          await setDoc(
+            doc(db, "users", currentUser.uid, "entries", date),
+            data
+          );
           showNotification("Zapisano w Firebase! 📀", "success");
         } catch (e) {
           console.error(e);
@@ -775,11 +809,11 @@
       };
 
       window.loadEntryForDate = async function () {
-        const email = localStorage.getItem("loggedUser");
-        const date = currentDate.toISOString().split("T")[0];
+        if (!currentUser) return;
 
+        const date = currentDate.toISOString().split("T")[0];
         try {
-          const ref = doc(db, "journals", `${email}_${date}`);
+          const ref = doc(db, "users", currentUser.uid, "entries", date);
           const snapshot = await getDoc(ref);
           if (snapshot.exists()) {
             const entry = snapshot.data();
@@ -799,6 +833,8 @@
               'textarea[placeholder*="affirmations"]'
             ).value = entry.affirmations || "";
             document.querySelector(".notes-field").value = entry.notes || "";
+          } else {
+            resetDay();
           }
         } catch (e) {
           console.error("Błąd ładowania:", e);
@@ -836,12 +872,6 @@
           .classList.toggle("active", !isDayMode);
       }
 
-      if (checkAuth()) {
-        updateDateDisplay();
-        loadEntryForDate();
-        setMood("neutral");
-      }
-
       window.toggleMenu = () => {
         document.getElementById("dropdownMenu").classList.toggle("show");
       };
@@ -862,8 +892,6 @@
           document.getElementById("dropdownMenu").classList.remove("show");
         }
       });
-
-      window.changeDate = changeDate;
     </script>
   </body>
 </html>
